@@ -1,15 +1,15 @@
 library flutter_datetime_picker;
 
 import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter_datetime_picker/src/datetime_picker_theme.dart';
 import 'package:flutter_datetime_picker/src/date_model.dart';
+import 'package:flutter_datetime_picker/src/datetime_picker_theme.dart';
 import 'package:flutter_datetime_picker/src/i18n_model.dart';
 
-export 'package:flutter_datetime_picker/src/datetime_picker_theme.dart';
 export 'package:flutter_datetime_picker/src/date_model.dart';
+export 'package:flutter_datetime_picker/src/datetime_picker_theme.dart';
 export 'package:flutter_datetime_picker/src/i18n_model.dart';
 
 typedef DateChangedCallback(DateTime time);
@@ -22,6 +22,7 @@ class DatePicker {
   ///
   static Future<DateTime?> showDatePicker(
     BuildContext context, {
+    String title = '',
     bool showTitleActions: true,
     DateTime? minTime,
     DateTime? maxTime,
@@ -35,6 +36,7 @@ class DatePicker {
     return await Navigator.push(
       context,
       _DatePickerRoute(
+        title: title,
         showTitleActions: showTitleActions,
         onChanged: onChanged,
         onConfirm: onConfirm,
@@ -58,6 +60,7 @@ class DatePicker {
   ///
   static Future<DateTime?> showTimePicker(
     BuildContext context, {
+    String title = '',
     bool showTitleActions: true,
     bool showSecondsColumn: true,
     DateChangedCallback? onChanged,
@@ -70,6 +73,7 @@ class DatePicker {
     return await Navigator.push(
       context,
       _DatePickerRoute(
+        title: title,
         showTitleActions: showTitleActions,
         onChanged: onChanged,
         onConfirm: onConfirm,
@@ -92,6 +96,7 @@ class DatePicker {
   ///
   static Future<DateTime?> showTime12hPicker(
     BuildContext context, {
+    String title = '',
     bool showTitleActions: true,
     DateChangedCallback? onChanged,
     DateChangedCallback? onConfirm,
@@ -103,6 +108,7 @@ class DatePicker {
     return await Navigator.push(
       context,
       _DatePickerRoute(
+        title: title,
         showTitleActions: showTitleActions,
         onChanged: onChanged,
         onConfirm: onConfirm,
@@ -124,6 +130,7 @@ class DatePicker {
   ///
   static Future<DateTime?> showDateTimePicker(
     BuildContext context, {
+    String title = '',
     bool showTitleActions: true,
     DateTime? minTime,
     DateTime? maxTime,
@@ -137,6 +144,7 @@ class DatePicker {
     return await Navigator.push(
       context,
       _DatePickerRoute(
+        title: title,
         showTitleActions: showTitleActions,
         onChanged: onChanged,
         onConfirm: onConfirm,
@@ -160,6 +168,7 @@ class DatePicker {
   ///
   static Future<DateTime?> showPicker(
     BuildContext context, {
+    String title = '',
     bool showTitleActions: true,
     DateChangedCallback? onChanged,
     DateChangedCallback? onConfirm,
@@ -171,6 +180,7 @@ class DatePicker {
     return await Navigator.push(
       context,
       _DatePickerRoute(
+        title: title,
         showTitleActions: showTitleActions,
         onChanged: onChanged,
         onConfirm: onConfirm,
@@ -187,6 +197,7 @@ class DatePicker {
 
 class _DatePickerRoute<T> extends PopupRoute<T> {
   _DatePickerRoute({
+    required this.title,
     this.showTitleActions,
     this.onChanged,
     this.onConfirm,
@@ -200,6 +211,7 @@ class _DatePickerRoute<T> extends PopupRoute<T> {
         this.theme = theme ?? DatePickerTheme(),
         super(settings: settings);
 
+  final String title;
   final bool? showTitleActions;
   final DateChangedCallback? onChanged;
   final DateChangedCallback? onConfirm;
@@ -310,7 +322,7 @@ class _DatePickerState extends State<_DatePickerComponent> {
               child: GestureDetector(
                 child: Material(
                   color: theme.backgroundColor,
-                  child: _renderPickerView(theme),
+                  child: _renderPickerView(theme, widget.route.title),
                 ),
               ),
             ),
@@ -326,12 +338,12 @@ class _DatePickerState extends State<_DatePickerComponent> {
     }
   }
 
-  Widget _renderPickerView(DatePickerTheme theme) {
+  Widget _renderPickerView(DatePickerTheme theme, String title) {
     Widget itemView = _renderItemView(theme);
     if (widget.route.showTitleActions == true) {
       return Column(
         children: <Widget>[
-          _renderTitleActionsView(theme),
+          _renderTitleActionsView(theme, title),
           itemView,
         ],
       );
@@ -471,7 +483,7 @@ class _DatePickerState extends State<_DatePickerComponent> {
   }
 
   // Title View
-  Widget _renderTitleActionsView(DatePickerTheme theme) {
+  Widget _renderTitleActionsView(DatePickerTheme theme, String title) {
     final done = _localeDone();
     final cancel = _localeCancel();
 
@@ -482,6 +494,7 @@ class _DatePickerState extends State<_DatePickerComponent> {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Container(
             height: theme.titleHeight,
@@ -498,6 +511,15 @@ class _DatePickerState extends State<_DatePickerComponent> {
                   widget.route.onCancel!();
                 }
               },
+            ),
+          ),
+          Container(
+            height: theme.titleHeight,
+            alignment: Alignment.center,
+            child: Text(
+              '$title',
+              textAlign: TextAlign.center,
+              style: theme.itemStyle,
             ),
           ),
           Container(
